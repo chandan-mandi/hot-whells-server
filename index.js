@@ -23,6 +23,12 @@ async function run() {
     const bookingCollection = database.collection('Car_Booking')
     const usersCollection = database.collection('User_Collection')
     const reviewCollection = database.collection('Review_Collection')
+    // POST A CAR DATA , DETAILS
+    app.post('/availableCars', async(req,res) => {
+      const carDetails = req.body;
+      const result = await carsCollection.insertOne(carDetails);
+      res.send(result)
+    })
     // GET ALL CARS DATA
     app.get('/availableCars', async (req, res) => {
       const cursor = carsCollection.find({});
@@ -85,9 +91,25 @@ async function run() {
       res.json(result)
       console.log(result);
     })
-    // ADDED ADMIN ROLE
+    // ADDED ADMIN ROLE / UPDATE ROLE FOR ADMIN
+    app.put('/users', async(req, res) => {
+      const user = req.body;
+      const filter = {}
+    })
     // app.put('/users/admin')
-    // 
+    // REVIEW POST API 
+    app.post('/review', async(req, res) => {
+      const review = req.body;
+      const result = await reviewCollection.insertOne(review);
+      res.send(result)
+    })
+    // GET ALL REVIEWS 
+    app.get('/review', async(req,res) => {
+      const cursor = reviewCollection.find({});
+      const result = await cursor.toArray();
+      res.json(result)
+    })
+
   }
   catch {
     // await client.close();
