@@ -44,6 +44,32 @@ async function run() {
       const car = await carsCollection.findOne(query);
       res.json(car)
     })
+    // UPDATE SINGLE CAR DETAILS
+    app.put('/availableCars/:id', async(req, res) => {
+      const id = req.params.id;
+      const updatedCar = req.body;
+      const filter = {_id: ObjectId(id)};
+      const options = {upsert: true};
+      const updateDoc = {
+          $set: {
+              name: updatedCar.name,
+              mileage: updatedCar.mileage,
+              price: updatedCar.price,
+              img: updatedCar.img,
+              details: updatedCar.details
+          },
+      };
+      const result = await carsCollection.updateOne(filter, updateDoc, options)
+      // res.send('updating not dationg')
+      res.json(result)
+  })
+    // DELETE SINGLE CAR DATA
+    app.delete('/deletedCar/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)}
+      const result = await carsCollection.deleteOne(query)
+      res.json(result)
+    })
     // POST BOOKING API
     app.post('/booking', async (req, res) => {
       const booking = req.body;
