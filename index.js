@@ -5,6 +5,7 @@ require('dotenv').config();
 const ObjectId = require('mongodb').ObjectId;
 
 const { MongoClient } = require('mongodb');
+const { urlencoded } = require('express');
 const port = process.env.PORT || 5000;
 
 // middleware
@@ -84,19 +85,47 @@ async function run() {
       const result = await bookingCollection.updateOne(filter, updateDoc, options)
       res.json(result)
     })
+    // DELETE SINGLE BOOKING DATA
+    app.delete('/deletedBooking/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: ObjectId(id)}
+      const result = await bookingCollection.deleteOne(query)
+      res.json(result)
+    })
     // POST METHOD USER DETAILS
     app.post('/users', async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
       res.json(result)
-      console.log(result);
     })
-    // ADDED ADMIN ROLE / UPDATE ROLE FOR ADMIN
+    // USERS DATA UPDATE API
     app.put('/users', async(req, res) => {
       const user = req.body;
-      const filter = {}
+      const filter = {email: user.email};
+      const options = {upsert: true};
+      const updateDoc = {$set: user}
+      const result = await usersCollection.updateOne(filter, updateDoc, options)
+      res.json(result)
     })
-    // app.put('/users/admin')
+    // USER COLLECTION ADDED ADMIN ROLE / UPDATE ROLE FOR ADMIN
+    app.put('/users/admin', async(req, res) => {
+      const user = req.body;
+      const filter = {email: user.email}
+      const updateDoc = {$set: {role: 'admin'}}
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.json(result)
+    })
+    // ADMIN ROLE FINDER
+    app.get('/users/:email', async(req,res) => {
+      const email = req.params.email;
+      const query = {email: email}
+      const user = await usersCollection.findOne(query)
+      let isAdmin = false;
+      if(user?.role === 'admin'){
+        isAdmin = true;
+      }
+      res.json({admin: isAdmin});
+    })
     // REVIEW POST API 
     app.post('/review', async(req, res) => {
       const review = req.body;
